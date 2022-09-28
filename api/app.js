@@ -1,15 +1,15 @@
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
-require('dotenv').config();
-
+require('dotenv').config({path: '../.env'});
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const InitiateMongoServer = require('./config/db');
-const multer = require('multer');
-const upload = multer();
+const session = require('express-session');
+const filestore = require('session-file-store')(session);
+const { v4: uuidv4 } = require('uuid');
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -30,8 +30,17 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(upload.array()); 
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({
+  genid: function(req) {
+    return uuidv4();
+  },
+  name: 'job-portal',
+  secret: 'tgbeko',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: true, maxAge: 3600000, httpOnly: true, sameSite: true }
+}));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
