@@ -18,9 +18,6 @@ InitiateMongoServer();
 
 const app = express();
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
 
 // Curb Cores Error by adding a header here
 app.use((req, res, next) => {
