@@ -12,12 +12,16 @@ const upload = multer({});
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  console.log(req.session);
-  res.json({ok: true, msg: ''});
+  
 });
 
-router.get('/auth-endpoint', auth, (req, res) => {
-  res.json({msg: 'You are authorized to access me'});
+router.get("/free-endpoint", (req, res) => {
+  res.json({ message: "You are free to access me anytime" });
+});
+
+// authentication endpoint
+router.get("/auth-endpoint", auth, (req, res) => {
+  res.json({ message: "You are authorized to access me" });
 });
 
 router.post('/upload', upload.single('file'), async (req, res, next) => {
@@ -98,7 +102,7 @@ async (req, res, next) => {
     if (!user) {
       return res.status(400).json({msg: 'No account exits for this email', ok: false});
     }
-    
+
     const isMatch = await bcrypt.compare(password, user.password);    
     if (!isMatch) {
       return res.status(400).json({msg: 'Incorrect password', ok: false});
@@ -112,16 +116,16 @@ async (req, res, next) => {
     };
 
     // create JWT token
-    const token = jwt.sign(payload, 
-            'RANDOM-TOKEN', 
-            {
-              expiresIn: '24hr'
-            }, 
-            (err, token) => {
-              if (err) throw err;
-              res.status(200).json({ token,  ok: false});
-            }
-          );  
+    const token = await new Promise((resolve, reject) => {
+      jwt.sign(payload.user, 
+        'RANDOM-TOKEN', 
+        { expiresIn: '24hr' }, 
+        (err, token) => {
+          if (err) reject(err);
+          return resolve(token);
+        }
+      );  
+    })
 
     return res.status(200).send({user: {
       loggedIn: true, 

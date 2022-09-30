@@ -6,7 +6,7 @@ module.exports = async (req, res, next) => {
         const token = await req.headers.authorization.split(' ')[1];
 
         // check if the token matches the supposed origin 
-        const decodedToken = await jwt.verify(token, '');
+        const decodedToken = await jwt.verify(token, 'RANDOM-TOKEN');
 
         // retrieve the user details form the logged in user 
         const user = await decodedToken;
